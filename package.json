@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "graceful-fs": "^4.1.15",
+    "yargs": "^13.2.4"
+  },
+  "devDependencies": {
+    "eslint": "^5.16.0"
+  }
+}
