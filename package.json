@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "start": "node parse.js"
+  },
   "dependencies": {
     "graceful-fs": "^4.1.15",
     "yargs": "^13.2.4"

@@ -16,4 +16,4 @@ Example usage:
 |--|--|--|--|--|
 |sources|yes|String||Files to parse|
 |destination|yes|String||Directory where parsed files are placed|
-|batch|no|Int|5|Max lines written to any file at once|
+|batch|no|Int|625|Max lines written to any file at once|

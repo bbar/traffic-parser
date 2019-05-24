@@ -14,19 +14,17 @@ const process = require('process');
 const { once } = require('events');
 // const fs = require('fs');
 const fs = require('graceful-fs');
-const util = require('util');
 const os = require('os');
 const path = require('path');
 const zlib = require('zlib');
 const readline = require('readline');
 
-let totalLines = 0;
 let totalLinesParsed = 0;
 
 function updateProgress(progress){
   process.stdout.clearLine();
   process.stdout.cursorTo(0);
-  process.stdout.write(`Parsing lines: ${progress}%`);
+  process.stdout.write(`Parsed lines: ${progress}`);
 }
 
 function write(obj, destination) {
@@ -39,7 +37,7 @@ function write(obj, destination) {
       });
     }
 
-    updateProgress((totalLinesParsed / totalLines).toFixed(4));
+    updateProgress(totalLinesParsed);
   } catch (error) {
     throw error;
   }
@@ -96,7 +94,7 @@ async function parse(source, destination, batch) {
     const {
       sources,
       destination,
-      batch = 5000,
+      batch = 625,
     } = argv;
 
     if (!sources) throw new Error('missing --sources');
@@ -106,17 +104,8 @@ async function parse(source, destination, batch) {
     const _sources = sources.split(' ');
 
     await fs.promises.mkdir(destination, { recursive: true });
-    const exec = util.promisify(require('child_process').exec);
 
     console.log(`Destination directory: ${destination}`);
-    console.log(`Calculating total lines to parse.`);
-
-    for (const source of _sources) {
-      const { stdout } = await exec(`cat ${source} | wc -l`);
-      totalLines += Number(stdout);
-    }
-
-    console.log(`Total lines: ${totalLines}`);
 
     updateProgress(0);
     for (const source of _sources) {
