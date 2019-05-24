@@ -5,7 +5,7 @@ NOTE: graceful-fs is used to avoide errors like EMFILE: too many open files
 node parse.js \
 --sources="/some/path/a.csv.gz /some/path/b.csv.gz /some/path/c.csv.gz /some/path/d.csv.gz" \
 --destination="/some/path/data/parsed/intervals" \
---batch=5000
+--batch=5
 
  */
 
@@ -20,13 +20,13 @@ const path = require('path');
 const zlib = require('zlib');
 const readline = require('readline');
 
-let linesParsed = 0;
 let totalLines = 0;
+let totalLinesParsed = 0;
 
 function updateProgress(progress){
   process.stdout.clearLine();
   process.stdout.cursorTo(0);
-  process.stdout.write(`Progress: ${progress}%`);
+  process.stdout.write(`Parsing lines: ${progress}%`);
 }
 
 function write(obj, destination) {
@@ -39,9 +39,7 @@ function write(obj, destination) {
       });
     }
 
-    linesParsed += Object.keys(obj).length;
-    updateProgress((linesParsed / totalLines).toFixed(2));
-    // updateProgress((linesParsed / totalLines));
+    updateProgress((totalLinesParsed / totalLines).toFixed(4));
   } catch (error) {
     throw error;
   }
@@ -65,6 +63,8 @@ async function parse(source, destination, batch) {
     rl
       .on('line', (line) => {
         cnt += 1;
+        totalLinesParsed += 1;
+
         const [start, end, ...speeds] = line.split(',');
 
         speeds.forEach((speed, i) => {
@@ -93,27 +93,32 @@ async function parse(source, destination, batch) {
 
 (async () => {
   try {
-    const start = Date.now();
-
     const {
       sources,
       destination,
-      batch = 5,
+      batch = 5000,
     } = argv;
 
     if (!sources) throw new Error('missing --sources');
     if (!destination) throw new Error('missing --destination');
 
+    const start = Date.now();
     const _sources = sources.split(' ');
 
     await fs.promises.mkdir(destination, { recursive: true });
     const exec = util.promisify(require('child_process').exec);
+
+    console.log(`Destination directory: ${destination}`);
+    console.log(`Calculating total lines to parse.`);
 
     for (const source of _sources) {
       const { stdout } = await exec(`cat ${source} | wc -l`);
       totalLines += Number(stdout);
     }
 
+    console.log(`Total lines: ${totalLines}`);
+
+    updateProgress(0);
     for (const source of _sources) {
       await parse(source, destination, batch);
     }
