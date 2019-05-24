@@ -9,14 +9,25 @@ node parse.js \
 
  */
 
-const argv = require('yargs').argv
+const argv = require('yargs').argv;
+const process = require('process');
 const { once } = require('events');
 // const fs = require('fs');
 const fs = require('graceful-fs');
+const util = require('util');
 const os = require('os');
 const path = require('path');
 const zlib = require('zlib');
 const readline = require('readline');
+
+let linesParsed = 0;
+let totalLines = 0;
+
+function updateProgress(progress){
+  process.stdout.clearLine();
+  process.stdout.cursorTo(0);
+  process.stdout.write(`Progress: ${progress}%`);
+}
 
 function write(obj, destination) {
   try {
@@ -27,6 +38,10 @@ function write(obj, destination) {
         if (error) console.log(error);
       });
     }
+
+    linesParsed += Object.keys(obj).length;
+    updateProgress((linesParsed / totalLines).toFixed(2));
+    // updateProgress((linesParsed / totalLines));
   } catch (error) {
     throw error;
   }
@@ -61,7 +76,7 @@ async function parse(source, destination, batch) {
           }
         });
 
-        if (cnt % batch === 0) {
+        if (batch === 0 || cnt % batch === 0) {
           write(obj, destination)
           obj = {};
         }
@@ -83,19 +98,27 @@ async function parse(source, destination, batch) {
     const {
       sources,
       destination,
-      batch = 2000,
+      batch = 5,
     } = argv;
 
     if (!sources) throw new Error('missing --sources');
     if (!destination) throw new Error('missing --destination');
 
-    await fs.promises.mkdir(destination, { recursive: true });
+    const _sources = sources.split(' ');
 
-    for (const source of sources.split(' ')) {
+    await fs.promises.mkdir(destination, { recursive: true });
+    const exec = util.promisify(require('child_process').exec);
+
+    for (const source of _sources) {
+      const { stdout } = await exec(`cat ${source} | wc -l`);
+      totalLines += Number(stdout);
+    }
+
+    for (const source of _sources) {
       await parse(source, destination, batch);
     }
 
-    console.log(`Finished in ${Date.now() - start}ms`);
+    process.stdout.write(`${os.EOL}Finished in ${Date.now() - start}ms${os.EOL}`);
   } catch (error) {
     console.log(error);
   }
