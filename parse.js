@@ -5,7 +5,7 @@ NOTE: graceful-fs is used to avoide errors like EMFILE: too many open files
 node parse.js \
 --sources="/some/path/a.csv.gz /some/path/b.csv.gz /some/path/c.csv.gz /some/path/d.csv.gz" \
 --destination="/some/path/data/parsed/intervals" \
---batch=5
+--batch=625
 
  */
 
