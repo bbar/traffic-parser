@@ -3,12 +3,12 @@
 NOTE: graceful-fs is used to avoide errors like EMFILE: too many open files
 
 node parse.js \
---sources="/some/path/a.csv.gz /some/path/b.csv.gz /some/path/c.csv.gz /some/path/d.csv.gz" \
---destination="/some/path/data/parsed/intervals" \
---batch=625 \
---sourceInterval=5 \
---targetInterval=30 \
---weekdays="3"
+  --sources="/some/path/a.csv.gz /some/path/b.csv.gz /some/path/c.csv.gz /some/path/d.csv.gz" \
+  --destination="/some/path/data/parsed/intervals" \
+  --weekdays="0,1,2,3,4,5,6" \
+  --batch=625 \
+  --sourceInterval=5 \
+  --targetInterval=60
 
  */
 

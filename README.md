@@ -10,10 +10,11 @@ Example usage:
     $ node parse.js \
         --sources="/some/path/a.csv.gz /some/path/b.csv.gz /some/path/c.csv.gz /some/path/d.csv.gz" \
         --destination="/some/path/data/parsed/intervals" \
+        --weekdays="0,1,2,3,4,5,6" \
         --batch=625 \
-        --targetInterval=5 \
         --sourceInterval=5 \
-        --weekdays="0,1,2,3,4,5,6"
+        --targetInterval=60
+        
 
 |Argument|Required|Type|Default|Description|
 |--|--|--|--|--|
